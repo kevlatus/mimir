@@ -107,7 +107,7 @@ func (q *query[T, K, R]) DeleteById(
 	return q.QuerySingleRow(database, allArgs...)
 }
 
-func NewDeleter[T any, K string | int64, R any](
+func NewDeleteQuery[T any, K string | int64, R any](
 	statement string,
 	scanFunc ScanFunc[R],
 ) DeleteQuery[T, K, R] {
