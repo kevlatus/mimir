@@ -2,7 +2,7 @@ package mimir
 
 type ArgsFunc[T any] func(record T) []any
 
-type SelectQuery[T any, K string | int64, R any] interface {
+type SelectAllQuery[T any, K string | int64, R any] interface {
 	SelectAll(database *Database, args ...any) ([]R, error)
 }
 
@@ -13,10 +13,10 @@ func (q *query[T, K, R]) SelectAll(
 	return q.QueryRows(database, args...)
 }
 
-func NewSelectQuery[T any, K string | int64, R any](
+func NewSelectAllQuery[T any, K string | int64, R any](
 	statement string,
 	scanFunc ScanFunc[R],
-) SelectQuery[T, K, R] {
+) SelectAllQuery[T, K, R] {
 	return NewQuery[T, K](statement, scanFunc, nil)
 }
 
@@ -60,9 +60,9 @@ type InsertQuery[T any, K string | int64, R any] interface {
 }
 
 func NewInsertQuery[T any, K string | int64, R any](
+	statement string,
 	scanFunc ScanFunc[R],
 	getEntityArgs ArgsFunc[T],
-	statement string,
 ) InsertQuery[T, K, R] {
 	return NewQuery[T, K](statement, scanFunc, getEntityArgs)
 }
@@ -83,9 +83,9 @@ func (q *query[T, K, R]) Update(
 }
 
 func NewUpdateQuery[T any, K string | int64, R any](
+	statement string,
 	scanFunc ScanFunc[R],
 	getEntityArgs ArgsFunc[T],
-	statement string,
 ) UpdateQuery[T, K, R] {
 	return NewQuery[T, K](statement, scanFunc, getEntityArgs)
 }
