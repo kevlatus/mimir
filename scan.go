@@ -7,15 +7,15 @@ type Scanner interface {
 type ScanFunc[T any] func(rows Scanner) (T, error)
 
 func ScanBoolean(scanner Scanner) (bool, error) {
-	var isDeleted *bool
-	err := scanner.Scan(&isDeleted)
+	var value *bool
+	err := scanner.Scan(&value)
 	if err != nil {
 		return false, err
 	}
-	if isDeleted == nil {
+	if value == nil {
 		return false, nil
 	} else {
-		return true, nil
+		return *value, nil
 	}
 }
 
