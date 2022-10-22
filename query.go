@@ -1,15 +1,13 @@
 package mimir
 
-import "database/sql"
-
 func querySingleRow[T any](
-	db *sql.DB,
+	ex QueryExecutor,
 	scanner ScanFunc[T],
 	queryText string,
 	args ...any) (T, error) {
 	var result T
 
-	row := db.QueryRow(queryText, args...)
+	row := ex.QueryRow(queryText, args...)
 	var err error
 	result, err = scanner(row)
 
@@ -17,14 +15,14 @@ func querySingleRow[T any](
 }
 
 func queryRows[T any](
-	db *sql.DB,
+	ex QueryExecutor,
 	scanner ScanFunc[T],
 	queryText string,
 	args ...any,
 ) ([]T, error) {
 	result := []T{}
 
-	rows, err := db.Query(queryText, args...)
+	rows, err := ex.Query(queryText, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,9 +40,9 @@ func queryRows[T any](
 }
 
 type Query[T any, K string | int64, R any] interface {
-	QuerySingleRow(database *Database, args ...any) (R, error)
+	QuerySingleRow(ex QueryExecutor, args ...any) (R, error)
 
-	QueryRows(database *Database, args ...any) ([]R, error)
+	QueryRows(ex QueryExecutor, args ...any) ([]R, error)
 }
 
 type query[T any, K string | int64, R any] struct {
@@ -66,27 +64,15 @@ func NewQuery[T any, K string | int64, R any](
 }
 
 func (q *query[T, K, R]) QuerySingleRow(
-	database *Database,
+	ex QueryExecutor,
 	args ...any,
 ) (R, error) {
-	var result R
-	err := database.WithConn(func(db *sql.DB) error {
-		var err error
-		result, err = querySingleRow(db, q.scanFunc, q.statement, args...)
-		return err
-	})
-	return result, err
+	return querySingleRow(ex, q.scanFunc, q.statement, args...)
 }
 
 func (q *query[T, K, R]) QueryRows(
-	database *Database,
+	ex QueryExecutor,
 	args ...any,
 ) ([]R, error) {
-	var result []R
-	err := database.WithConn(func(db *sql.DB) error {
-		var err error
-		result, err = queryRows(db, q.scanFunc, q.statement, args...)
-		return err
-	})
-	return result, err
+	return queryRows(ex, q.scanFunc, q.statement, args...)
 }

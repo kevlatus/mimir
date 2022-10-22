@@ -3,14 +3,14 @@ package mimir
 type ArgsFunc[T any] func(record T) []any
 
 type SelectAllQuery[T any, K string | int64, R any] interface {
-	SelectAll(database *Database, args ...any) ([]R, error)
+	SelectAll(ex QueryExecutor, args ...any) ([]R, error)
 }
 
 func (q *query[T, K, R]) SelectAll(
-	database *Database,
+	ex QueryExecutor,
 	args ...any,
 ) ([]R, error) {
-	return q.QueryRows(database, args...)
+	return q.QueryRows(ex, args...)
 }
 
 func NewSelectAllQuery[T any, K string | int64, R any](
@@ -21,17 +21,17 @@ func NewSelectAllQuery[T any, K string | int64, R any](
 }
 
 type SelectByIdQuery[T any, K string | int64, R any] interface {
-	SelectById(database *Database, id K, args ...any) (R, error)
+	SelectById(ex QueryExecutor, id K, args ...any) (R, error)
 }
 
 func (q *query[T, K, R]) SelectById(
-	database *Database,
+	ex QueryExecutor,
 	id K,
 	args ...any,
 ) (R, error) {
 	allArgs := []any{id}
 	allArgs = append(allArgs, args...)
-	return q.QuerySingleRow(database, allArgs...)
+	return q.QuerySingleRow(ex, allArgs...)
 }
 
 func NewSelectByIdQuery[T any, K string | int64, R any](
@@ -42,7 +42,7 @@ func NewSelectByIdQuery[T any, K string | int64, R any](
 }
 
 func (q *query[T, K, R]) Insert(
-	database *Database,
+	ex QueryExecutor,
 	entity T,
 	args ...any,
 ) (R, error) {
@@ -50,13 +50,13 @@ func (q *query[T, K, R]) Insert(
 	allArgs = append(allArgs, args...)
 	allArgs = append(allArgs, q.getRecordArgs(entity)...)
 	return q.QuerySingleRow(
-		database,
+		ex,
 		allArgs...,
 	)
 }
 
 type InsertQuery[T any, K string | int64, R any] interface {
-	Insert(database *Database, entity T, args ...any) (R, error)
+	Insert(ex QueryExecutor, entity T, args ...any) (R, error)
 }
 
 func NewInsertQuery[T any, K string | int64, R any](
@@ -68,18 +68,18 @@ func NewInsertQuery[T any, K string | int64, R any](
 }
 
 type UpdateQuery[T any, K string | int64, R any] interface {
-	Update(database *Database, entity T, args ...any) (R, error)
+	Update(ex QueryExecutor, entity T, args ...any) (R, error)
 }
 
 func (q *query[T, K, R]) Update(
-	database *Database,
+	ex QueryExecutor,
 	entity T,
 	args ...any,
 ) (R, error) {
 	allArgs := []any{}
 	allArgs = append(allArgs, args...)
 	allArgs = append(allArgs, q.getRecordArgs(entity)...)
-	return q.QuerySingleRow(database, allArgs...)
+	return q.QuerySingleRow(ex, allArgs...)
 }
 
 func NewUpdateQuery[T any, K string | int64, R any](
@@ -93,18 +93,18 @@ func NewUpdateQuery[T any, K string | int64, R any](
 type DeleteQuery[T any, K string | int64, R any] interface {
 	Query[T, K, R]
 
-	DeleteById(database *Database, id K, args ...any) (R, error)
+	DeleteById(ex QueryExecutor, id K, args ...any) (R, error)
 }
 
 func (q *query[T, K, R]) DeleteById(
-	database *Database,
+	ex QueryExecutor,
 	id K,
 	args ...any,
 ) (R, error) {
 	allArgs := []any{}
 	allArgs = append(allArgs, args...)
 	allArgs = append(allArgs, id)
-	return q.QuerySingleRow(database, allArgs...)
+	return q.QuerySingleRow(ex, allArgs...)
 }
 
 func NewDeleteQuery[T any, K string | int64, R any](

@@ -20,3 +20,11 @@ func (d *Database) WithConn(f func(db *sql.DB) error) error {
 
 	return f(db)
 }
+
+type QueryExecutor interface {
+	Query(query string, args ...any) (*sql.Rows, error)
+
+	QueryRow(query string, args ...any) *sql.Row
+
+	Exec(query string, args ...any) (sql.Result, error)
+}
