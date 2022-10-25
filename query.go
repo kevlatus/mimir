@@ -1,5 +1,7 @@
 package mimir
 
+import "database/sql"
+
 func querySingleRow[T any](
 	ex QueryExecutor,
 	scanner ScanFunc[T],
@@ -40,6 +42,8 @@ func queryRows[T any](
 }
 
 type Query[T any, K string | int64, R any] interface {
+	Exec(ex QueryExecutor, args ...any) (sql.Result, error)
+
 	QuerySingleRow(ex QueryExecutor, args ...any) (R, error)
 
 	QueryRows(ex QueryExecutor, args ...any) ([]R, error)
@@ -55,12 +59,19 @@ func NewQuery[T any, K string | int64, R any](
 	statement string,
 	scanFunc ScanFunc[R],
 	getRecordArgs ArgsFunc[T],
-) *query[T, K, R] {
+) Query[T, K, R] {
 	return &query[T, K, R]{
 		statement:     statement,
 		scanFunc:      scanFunc,
 		getRecordArgs: getRecordArgs,
 	}
+}
+
+func (q *query[T, K, R]) Exec(
+	ex QueryExecutor,
+	args ...any,
+) (sql.Result, error) {
+	return ex.Exec(q.statement, args...)
 }
 
 func (q *query[T, K, R]) QuerySingleRow(
