@@ -59,7 +59,7 @@ func NewQuery[T any, K string | int64, R any](
 	statement string,
 	scanFunc ScanFunc[R],
 	getRecordArgs ArgsFunc[T],
-) Query[T, K, R] {
+) *query[T, K, R] {
 	return &query[T, K, R]{
 		statement:     statement,
 		scanFunc:      scanFunc,
